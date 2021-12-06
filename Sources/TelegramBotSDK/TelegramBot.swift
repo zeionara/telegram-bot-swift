@@ -15,6 +15,8 @@ import Dispatch
 
 import CCurl
 
+public typealias AppendToLog = (_ text: String) -> ()
+
 public class TelegramBot {
     internal typealias DataTaskCompletion = (_ result: Decodable?, _ error: DataTaskError?)->()
 
@@ -54,7 +56,7 @@ public class TelegramBot {
     public var lastError: DataTaskError?
     
     /// Logging function. Defaults to `print`.
-    public var logger: (_ text: String) -> () = { print($0) }
+    public var logger: AppendToLog
     
     /// Defines reconnect delay in seconds when requesting updates. Can be overridden.
     ///
@@ -103,9 +105,10 @@ public class TelegramBot {
     /// - Parameter token: A unique authentication token.
     /// - Parameter fetchBotInfo: If true, issue a blocking `getMe()` call and cache the bot information. Otherwise it will be lazy-loaded when needed. Defaults to true.
     /// - Parameter session: `NSURLSession` instance, a session with `ephemeralSessionConfiguration` is used by default.
-    public init(token: String, fetchBotInfo: Bool = true) {
+    public init(token: String, fetchBotInfo: Bool = true, log: @escaping AppendToLog = { print($0) }) {
         self.token = token
         self.unprocessedUpdates = []
+        self.logger = log
         if fetchBotInfo {
             _ = user // Load the lazy user variable
         }
